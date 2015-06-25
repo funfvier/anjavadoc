@@ -5,8 +5,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_web_view">WebViewActivity</string>
 
-    <string name="webText">
-        <![CDATA[<ul class="blockListLast">
+    <string name="webText"><![CDATA[
+        <ul class="blockListLast">
 <li class="blockList">
 <h4>Applet</h4>
 <pre>public&nbsp;Applet()
@@ -24,9 +24,34 @@
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>1.4</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../java/awt/GraphicsEnvironment.html#isHeadless--"><code>GraphicsEnvironment.isHeadless()</code></a></dd>
+<dd><a href="../../java/awt/GraphicsEnvironment.html#isHeadless"><code>GraphicsEnvironment.isHeadless()</code></a></dd>
 </dl>
 </li>
-</ul>]]>
+</ul>
+]]>
     </string>
+
+    <string name="java_applet_AppletContext_shortDescription">This interface corresponds to an applet\'s environment: the document containing the applet and the other applets in the same document.</string>
+    <string name="java_applet_AppletContext_longDescription"><![CDATA[
+    <div class="block">This interface corresponds to an applet\'s environment: the
+ document containing the applet and the other applets in the same
+ document.
+ <p>
+ The methods in this interface can be used by an applet to obtain
+ information about its environment.</p></div>
+ ]]>
+    </string>
+
+    <string name="java_applet_Applet_shortDescription">An applet is a small program that is intended not to be run on its own, but rather to be embedded inside another application.</string>
+    <string name="java_applet_Applet_longDescription"><![CDATA[
+    <div class="block">An applet is a small program that is intended not to be run on
+ its own, but rather to be embedded inside another application.
+ <p>
+ The <code>Applet</code> class must be the superclass of any
+ applet that is to be embedded in a Web page or viewed by the Java
+ Applet Viewer. The <code>Applet</code> class provides a standard
+ interface between applets and their environment.</p></div>
+ ]]>
+    </string>
+    <string name="title_activity_package">PackageActivity</string>
 </resources>

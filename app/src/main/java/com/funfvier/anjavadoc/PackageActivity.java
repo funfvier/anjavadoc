@@ -1,52 +1,36 @@
 package com.funfvier.anjavadoc;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.PackageAdaper;
 import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EPackage;
 
 
-public class MainActivity extends ActionBarActivity {
+public class PackageActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_package);
 
         DataSource ds = new DataSource(this);
 
-        ListView lvPackages = (ListView)findViewById(R.id.lvPackages);
-        ArrayAdapter<EPackage> adapter = new PackageAdaper(this, R.layout.package_item, ds.packages);
+        ListView lvPackages = (ListView)findViewById(R.id.lvClass);
+        ArrayAdapter<EClass> adapter = new ClassAdapter(this, R.layout.class_item, ds.classes);
         lvPackages.setAdapter(adapter);
-
-        lvPackages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(MainActivity.this, PackageActivity.class));
-            }
-        });
-    }
-
-    public void openWebView(View view) {
-        Intent intent = new Intent(this, WebViewActivity.class);
-        startActivity(intent);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_package, menu);
         return true;
     }
 

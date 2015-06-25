@@ -4,15 +4,25 @@ package com.funfvier.anjavadoc.entity;
  * Created by lshi on 25.06.2015.
  */
 public class EPackage {
+    private int id;
     private String name;
     private String description;
 
     public EPackage() {
     }
 
-    public EPackage(String name, String description) {
+    public EPackage(int id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

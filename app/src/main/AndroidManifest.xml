@@ -20,6 +20,10 @@
             android:name=".WebViewActivity"
             android:label="@string/title_activity_web_view" >
         </activity>
+        <activity
+            android:name=".PackageActivity"
+            android:label="@string/title_activity_package" >
+        </activity>
     </application>
 
 </manifest>

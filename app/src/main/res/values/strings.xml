@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">anjavadoc</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_web_view">WebViewActivity</string>
+
+    <string name="webText">
+        <![CDATA[<ul class="blockListLast">
+<li class="blockList">
+<h4>Applet</h4>
+<pre>public&nbsp;Applet()
+       throws <a href="../../java/awt/HeadlessException.html" title="class in java.awt">HeadlessException</a></pre>
+<div class="block">Constructs a new Applet.
+ <p>
+ Note: Many methods in <code>java.applet.Applet</code>
+ may be invoked by the applet only after the applet is
+ fully constructed; applet should avoid calling methods
+ in <code>java.applet.Applet</code> in the constructor.</p></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../java/awt/HeadlessException.html" title="class in java.awt">HeadlessException</a></code> - if GraphicsEnvironment.isHeadless()
+ returns true.</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>1.4</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../java/awt/GraphicsEnvironment.html#isHeadless--"><code>GraphicsEnvironment.isHeadless()</code></a></dd>
+</dl>
+</li>
+</ul>]]>
+    </string>
+</resources>

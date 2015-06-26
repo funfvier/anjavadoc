@@ -24,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DataSource ds = new DataSource(this);
+        final DataSource ds = new DataSource(this);
 
         ListView lvPackages = (ListView)findViewById(R.id.lvPackages);
         ArrayAdapter<EPackage> adapter = new PackageAdaper(this, R.layout.package_item, ds.packages);
@@ -33,7 +33,9 @@ public class MainActivity extends ActionBarActivity {
         lvPackages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(MainActivity.this, PackageActivity.class));
+                Intent classesIntent = new Intent(MainActivity.this, PackageActivity.class);
+                classesIntent.putExtra(Const.PACKAGE_ID.name(), ds.packages[position].getId());
+                startActivity(classesIntent);
             }
         });
     }

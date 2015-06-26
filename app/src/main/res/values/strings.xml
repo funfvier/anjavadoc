@@ -54,4 +54,35 @@
  ]]>
     </string>
     <string name="title_activity_package">PackageActivity</string>
+    <string name="title_activity_class">ClassActivity</string>
+
+    <string name="java_applet_Applet_destroy_shortDescription">Called by the browser or applet viewer to inform this applet that it is being reclaimed and that it should destroy any resources that it has allocated.</string>
+    <string name="java_applet_Applet_destroy_longDescription"><![CDATA[
+    <ul class="blockList">
+<li class="blockList">
+<h4>destroy</h4>
+<pre>public&nbsp;void&nbsp;destroy()</pre>
+<div class="block">Called by the browser or applet viewer to inform
+ this applet that it is being reclaimed and that it should destroy
+ any resources that it has allocated. The <code>stop</code> method
+ will always be called before <code>destroy</code>.
+ <p>
+ A subclass of <code>Applet</code> should override this method if
+ it has any operation that it wants to perform before it is
+ destroyed. For example, an applet with threads would use the
+ <code>init</code> method to create the threads and the
+ <code>destroy</code> method to kill them.
+ </p><p>
+ The implementation of this method provided by the
+ <code>Applet</code> class does nothing.</p></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../java/applet/Applet.html#init--"><code>init()</code></a>,
+<a href="../../java/applet/Applet.html#start--"><code>start()</code></a>,
+<a href="../../java/applet/Applet.html#stop--"><code>stop()</code></a></dd>
+</dl>
+</li>
+</ul>
+    ]]></string>
+    <string name="title_activity_member">MemberActivity</string>
 </resources>

@@ -7,6 +7,7 @@ public class EPackage {
     private int id;
     private String name;
     private String description;
+    private String fullDescription;
 
     public EPackage() {
     }
@@ -39,5 +40,13 @@ public class EPackage {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getFullDescription() {
+        return fullDescription;
+    }
+
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
     }
 }

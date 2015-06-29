@@ -3,6 +3,7 @@ package com.funfvier.anjavadoc;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,28 +14,56 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.funfvier.anjavadoc.adapter.PackageAdaper;
+import com.funfvier.anjavadoc.dao.PackageDao;
+import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EPackage;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
 
 public class MainActivity extends ActionBarActivity {
+    private final String TAG = MainActivity.class.getName();
+    private DBOpenHelper dbhelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final DataSource ds = new DataSource(this);
+        if(dbhelper == null) {
+            dbhelper = new DBOpenHelper(this);
+
+            try{
+                dbhelper.createDatabase();
+            } catch(IOException e) {
+                Log.e(TAG, "Unable to create db", e);
+                throw new Error("Unable to create db");
+            }
+
+            try{
+                dbhelper.openDatabase();
+            } catch(SQLException e) {
+                Log.e(TAG, "Unable to open db", e);
+                throw new Error("Unable to open db");
+            }
+        }
+
+        PackageDao packageDao = new PackageDao(dbhelper);
+        List<EPackage> packages = packageDao.getAll();
+        final EPackage[] packagesArray = packages.toArray(new EPackage[]{});
 
         ListView lvPackages = (ListView)findViewById(R.id.lvPackages);
-        ArrayAdapter<EPackage> adapter = new PackageAdaper(this, R.layout.package_item, ds.packages);
+        ArrayAdapter<EPackage> adapter = new PackageAdaper(this, R.layout.package_item, packagesArray);
         lvPackages.setAdapter(adapter);
 
         lvPackages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent classesIntent = new Intent(MainActivity.this, PackageActivity.class);
-                classesIntent.putExtra(Const.PACKAGE_ID.name(), ds.packages[position].getId());
+                classesIntent.putExtra(Const.PACKAGE_ID.name(), packagesArray[position].getId());
                 startActivity(classesIntent);
             }
         });

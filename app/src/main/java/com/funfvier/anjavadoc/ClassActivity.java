@@ -3,6 +3,7 @@ package com.funfvier.anjavadoc;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,25 +13,51 @@ import android.widget.ListView;
 
 import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.MemberAdapter;
+import com.funfvier.anjavadoc.dao.MemberDao;
+import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EMember;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
 public class ClassActivity extends ActionBarActivity {
+    private final String TAG = ClassActivity.class.getName();
+    private DBOpenHelper dbhelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class);
 
-        final DataSource ds = new DataSource(this);
+        if(dbhelper == null) {
+            dbhelper = new DBOpenHelper(this);
+
+            try{
+                dbhelper.createDatabase();
+            } catch(IOException e) {
+                Log.e(TAG, "Unable to create db", e);
+                throw new Error("Unable to create db");
+            }
+
+            try{
+                dbhelper.openDatabase();
+            } catch(SQLException e) {
+                Log.e(TAG, "Unable to open db", e);
+                throw new Error("Unable to open db");
+            }
+        }
 
         int classId = getIntent().getIntExtra(Const.CLASS_ID.name(), -1);
-        EMember[] classMembers = getMembers(classId, Arrays.asList(ds.members));
+
+        MemberDao memberDao = new MemberDao(dbhelper);
+
+        final EMember[] classMembers = memberDao.getByClassId(classId).toArray(new EMember[]{});
+        dbhelper.close();
 
         ListView lvClasses = (ListView) findViewById(R.id.lvMembers);
         ArrayAdapter<EMember> adapter = new MemberAdapter(this, R.layout.member_item, classMembers);
@@ -40,7 +67,7 @@ public class ClassActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent memberIntent = new Intent(ClassActivity.this, MemberActivity.class);
-                memberIntent.putExtra(Const.MEMBER_ID.name(), ds.members[position].getId());
+                memberIntent.putExtra(Const.MEMBER_ID.name(), classMembers[position].getId());
                 startActivity(memberIntent);
             }
         });

@@ -3,6 +3,7 @@ package com.funfvier.anjavadoc;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,9 +13,13 @@ import android.widget.ListView;
 
 import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.PackageAdaper;
+import com.funfvier.anjavadoc.dao.ClassDao;
+import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EPackage;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,17 +27,39 @@ import java.util.List;
 
 
 public class PackageActivity extends ActionBarActivity {
+    private final String TAG = PackageActivity.class.getName();
+    private DBOpenHelper dbhelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_package);
 
-        final DataSource ds = new DataSource(this);
+        if(dbhelper == null) {
+            dbhelper = new DBOpenHelper(this);
+
+            try{
+                dbhelper.createDatabase();
+            } catch(IOException e) {
+                Log.e(TAG, "Unable to create db", e);
+                throw new Error("Unable to create db");
+            }
+
+            try{
+                dbhelper.openDatabase();
+            } catch(SQLException e) {
+                Log.e(TAG, "Unable to open db", e);
+                throw new Error("Unable to open db");
+            }
+        }
 
         int packageId = getIntent().getIntExtra(Const.PACKAGE_ID.name(), -1);
 
-        EClass[] packageClasses = getClasses(packageId, Arrays.asList(ds.classes));
+        ClassDao dao = new ClassDao(dbhelper);
+        List<EClass> classes = dao.getByPackageId(packageId);
+        dbhelper.close();
+
+        final EClass[] packageClasses = classes.toArray(new EClass[]{});
 
         ListView lvPackages = (ListView) findViewById(R.id.lvClass);
         ArrayAdapter<EClass> adapter = new ClassAdapter(this, R.layout.class_item, packageClasses);
@@ -42,7 +69,7 @@ public class PackageActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent classesIntent = new Intent(PackageActivity.this, ClassActivity.class);
-                classesIntent.putExtra(Const.CLASS_ID.name(), ds.classes[position].getId());
+                classesIntent.putExtra(Const.CLASS_ID.name(), packageClasses[position].getId());
                 startActivity(classesIntent);
             }
         });

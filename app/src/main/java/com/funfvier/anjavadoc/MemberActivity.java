@@ -8,12 +8,17 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.funfvier.anjavadoc.dao.MemberDao;
+import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EMember;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 
 public class MemberActivity extends ActionBarActivity {
+    private DBOpenHelper dbhelper;
     private static final String TAG = MemberActivity.class.getName();
 
     @Override
@@ -21,20 +26,41 @@ public class MemberActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member);
 
-        final DataSource ds = new DataSource(this);
+        if(dbhelper == null) {
+            dbhelper = new DBOpenHelper(this);
+
+            try{
+                dbhelper.createDatabase();
+            } catch(IOException e) {
+                Log.e(TAG, "Unable to create db", e);
+                throw new Error("Unable to create db");
+            }
+
+            try{
+                dbhelper.openDatabase();
+            } catch(SQLException e) {
+                Log.e(TAG, "Unable to open db", e);
+                throw new Error("Unable to open db");
+            }
+        }
+
+        MemberDao memberDao = new MemberDao(dbhelper);
 
         int memberId = getIntent().getIntExtra(Const.MEMBER_ID.name(), -1);
-        EMember member = getMember(memberId, Arrays.asList(ds.members));
+        EMember member = memberDao.getById(memberId);
+        dbhelper.close();
 
-        WebView vwMember = (WebView) findViewById(R.id.wvMember);
-        vwMember.loadDataWithBaseURL("", member.getLongDescription(), "text/html", "UTF-8", "");
-        vwMember.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.d(TAG, "URL clicked: " + url);
-                return super.shouldOverrideUrlLoading(view, url);
-            }
-        });
+        if(member != null) {
+            WebView vwMember = (WebView) findViewById(R.id.wvMember);
+            vwMember.loadDataWithBaseURL("", member.getLongDescription(), "text/html", "UTF-8", "");
+            vwMember.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    Log.d(TAG, "URL clicked: " + url);
+                    return super.shouldOverrideUrlLoading(view, url);
+                }
+            });
+        }
     }
 
     private EMember getMember(int id, Iterable<EMember> members) {

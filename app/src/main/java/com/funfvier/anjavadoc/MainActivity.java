@@ -54,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
         PackageDao packageDao = new PackageDao(dbhelper);
         List<EPackage> packages = packageDao.getAll();
         final EPackage[] packagesArray = packages.toArray(new EPackage[]{});
+        dbhelper.close();
 
         ListView lvPackages = (ListView)findViewById(R.id.lvPackages);
         ArrayAdapter<EPackage> adapter = new PackageAdaper(this, R.layout.package_item, packagesArray);

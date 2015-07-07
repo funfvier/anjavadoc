@@ -4,10 +4,20 @@ package com.funfvier.anjavadoc.crawler.entity;
  * Created by lshi on 01.07.2015.
  */
 public class JDMethod {
+    private int id;
     private String name;
     private String htmlName;
     private String shortDescription;
     private String longDescription;
+    private int classId;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -39,5 +49,25 @@ public class JDMethod {
 
     public void setLongDescription(String longDescription) {
         this.longDescription = longDescription;
+    }
+
+    public int getClassId() {
+        return classId;
+    }
+
+    public void setClassId(int classId) {
+        this.classId = classId;
+    }
+
+    @Override
+    public String toString() {
+        return "JDMethod{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", htmlName='" + htmlName + '\'' +
+                ", shortDescription='" + shortDescription + '\'' +
+                ", longDescription='" + longDescription + '\'' +
+                ", classId=" + classId +
+                '}';
     }
 }

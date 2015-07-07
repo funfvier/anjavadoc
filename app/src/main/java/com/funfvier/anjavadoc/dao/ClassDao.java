@@ -28,7 +28,7 @@ public class ClassDao {
         String sql = "select _id, name, desc_short, desc_long, package_id from jd_classes where package_id = " + packageId;
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(sql, null);
         List<EClass> classes = new ArrayList<>();
-        while(cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             EClass c = new EClass();
             c.setId(cursor.getInt(0));
             c.setName(cursor.getString(1));
@@ -38,5 +38,24 @@ public class ClassDao {
             classes.add(c);
         }
         return classes;
+    }
+
+    public EClass get(int id) {
+        if (dbHelper == null) {
+            Log.d(TAG, "get dbHelper is null");
+            return null;
+        }
+        String sql = "select _id, name, desc_short, desc_long, package_id from jd_classes where _id = " + id;
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(sql, null);
+        if (cursor.moveToNext()) {
+            EClass c = new EClass();
+            c.setId(cursor.getInt(0));
+            c.setName(cursor.getString(1));
+            c.setDescriptionShort(cursor.getString(2));
+            c.setDescriptionLong(cursor.getString(3));
+            c.setPackageId(cursor.getInt(4));
+            return c;
+        }
+        return null;
     }
 }

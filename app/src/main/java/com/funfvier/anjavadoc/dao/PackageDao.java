@@ -38,4 +38,22 @@ public class PackageDao {
         }
         return packages;
     }
+
+    public EPackage get(int id) {
+        if (dbHelper == null) {
+            Log.d(TAG, "get dbHelper is null");
+            return null;
+        }
+        String sql = "select _id, name, description, full_description from jd_packages where _id = " + id;
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(sql, null);
+        if(cursor.moveToNext()) {
+            EPackage p = new EPackage();
+            p.setId(cursor.getInt(0));
+            p.setName(cursor.getString(1));
+            p.setDescription(cursor.getString(2));
+            p.setFullDescription(cursor.getString(3));
+            return p;
+        }
+        return null;
+    }
 }

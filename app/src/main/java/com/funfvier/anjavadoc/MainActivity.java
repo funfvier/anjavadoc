@@ -33,6 +33,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setTitle(R.string.mainTitle);
+
         if(dbhelper == null) {
             dbhelper = new DBOpenHelper(this);
 
@@ -73,6 +75,14 @@ public class MainActivity extends ActionBarActivity {
     public void openWebView(View view) {
         Intent intent = new Intent(this, WebViewActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(dbhelper != null) {
+            dbhelper.close();
+        }
+        super.onDestroy();
     }
 
     @Override

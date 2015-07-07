@@ -8,8 +8,10 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.funfvier.anjavadoc.dao.ClassDao;
 import com.funfvier.anjavadoc.dao.MemberDao;
 import com.funfvier.anjavadoc.db.DBOpenHelper;
+import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EMember;
 
 import java.io.IOException;
@@ -48,6 +50,16 @@ public class MemberActivity extends ActionBarActivity {
 
         int memberId = getIntent().getIntExtra(Const.MEMBER_ID.name(), -1);
         EMember member = memberDao.getById(memberId);
+
+        ClassDao classDao = new ClassDao(dbhelper);
+        EClass eClass = classDao.get(member.getClassId());
+
+        if(eClass != null) {
+            setTitle("Member: " + eClass.getName() + " . " + member.getName());
+        } else {
+            setTitle("Member");
+        }
+
         dbhelper.close();
 
         if(member != null) {
@@ -70,6 +82,14 @@ public class MemberActivity extends ActionBarActivity {
             }
         }
         return null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(dbhelper != null) {
+            dbhelper.close();
+        }
+        super.onDestroy();
     }
 
     @Override

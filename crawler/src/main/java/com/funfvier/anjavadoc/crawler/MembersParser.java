@@ -30,6 +30,7 @@ public class MembersParser {
     private static final Logger log = LogManager.getLogger(MembersParser.class);
     private File path;
     private List<JDMethod> methods;
+    private String longClassDescription;
 
     static {
         try {
@@ -39,8 +40,12 @@ public class MembersParser {
         }
     }
 
-    public MembersParser() {
-        path = new File("C:\\downloads\\jdk-8u45-docs-all\\docs\\api\\java\\applet\\Applet.html");
+    public MembersParser(File path) {
+        this.path = path;
+    }
+
+    public String getLongClassDescription() {
+        return longClassDescription;
     }
 
     public void parse() throws IOException {
@@ -48,8 +53,24 @@ public class MembersParser {
         Document doc = Jsoup.parse(path, "UTF-8");
         Elements details = doc.getElementsByClass("details");
         Element detailsElement = details.first();
+        if(detailsElement == null) {
+            log.warn("detailsElement is null: " + path);
+            return;
+        }
         Elements methodDetailElements = detailsElement.getElementsByAttributeValue("name", "method.detail");
+        if(methodDetailElements == null) {
+            log.warn("methodDetailElements is null: "  + path);
+            return;
+        }
+        Element contentContainerElt = doc.getElementsByClass("contentContainer").first();
+        if(contentContainerElt != null) {
+            processClassDescription(contentContainerElt);
+        }
         Element methodsLiElement = methodDetailElements.parents().first();
+        if(methodsLiElement == null) {
+            log.warn("methodsLiElement is null: " + path);
+            return;
+        }
         Elements methodLiElements = methodsLiElement.getElementsByTag("li");
         for (Element menthodLiElement : methodLiElements) {
             if (menthodLiElement.className().equalsIgnoreCase("blockList")) {
@@ -70,6 +91,18 @@ public class MembersParser {
 
     public List<JDMethod> getMethods() {
         return Collections.unmodifiableList(methods);
+    }
+
+    private void processClassDescription(Element contentContainerElt) {
+        longClassDescription = "";
+        Element inheritanceElt = contentContainerElt.getElementsByClass("inheritance").first();
+        if(inheritanceElt != null) {
+            longClassDescription += inheritanceElt.html();
+        }
+        Element descriptionElt = contentContainerElt.getElementsByClass("description").first();
+        if(descriptionElt != null) {
+            longClassDescription += descriptionElt.html();
+        }
     }
 
     public void saveToDb() {
@@ -104,8 +137,8 @@ public class MembersParser {
     }
 
     public static void main(String[] args) throws Exception {
-        MembersParser classParser = new MembersParser();
+        MembersParser classParser = new MembersParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/awt/dnd/DnDConstants.html"));
         classParser.parse();
-        classParser.saveToDb();
+//        classParser.saveToDb();
     }
 }

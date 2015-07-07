@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ public class ClassesParser {
     private File path;
     private List<JDClass> classes;
     private String packageName;
+    private String packageLongDescription;
 
     static {
         try {
@@ -38,13 +40,21 @@ public class ClassesParser {
         }
     }
 
-    public ClassesParser(String packageName) {
-        path = new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/applet/package-summary.html");
+    public ClassesParser(File path, String packageName) {
+        this.path = path;
         this.packageName = packageName;
     }
 
+    public List<JDClass> getClasses() {
+        return Collections.unmodifiableList(classes);
+    }
+
+    public String getPackageLongDescription() {
+        return packageLongDescription;
+    }
+
     public static void main(String[] args) throws Exception {
-        ClassesParser classesParser = new ClassesParser("java.applet");
+        ClassesParser classesParser = new ClassesParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/applet/package-summary.html"), "java.applet");
         classesParser.parse();
         classesParser.saveToDb();
     }
@@ -58,6 +68,7 @@ public class ClassesParser {
             for(Element summaryLi : summaryLiElts ) {
                 handleSummaryLi(summaryLi);
             }
+            handleLongDescription(containerElt);
         }
     }
 
@@ -111,6 +122,10 @@ public class ClassesParser {
         String description = null;
         if(colFirst != null) {
             className = colFirst.text();
+            Element hrefElt = colFirst.getElementsByTag("a").first();
+            if(hrefElt != null) {
+                jdClass.setHref(hrefElt.attributes().get("href"));
+            }
         }
         Element colLast = row.getElementsByClass("colLast").first();
         if(colLast != null) {
@@ -120,5 +135,18 @@ public class ClassesParser {
         jdClass.setName(packageName + "." + className);
         jdClass.setShortDescription(description);
         classes.add(jdClass);
+    }
+
+    private void handleLongDescription(Element containerElt) {
+        packageLongDescription = "";
+        Element descriptionElt = containerElt.select("div.block").first();
+        if(descriptionElt != null) {
+            packageLongDescription = descriptionElt.html();
+        }
+
+        Element sinceElt = containerElt.select("dl").first();
+        if(sinceElt != null) {
+            packageLongDescription += sinceElt.html();
+        }
     }
 }

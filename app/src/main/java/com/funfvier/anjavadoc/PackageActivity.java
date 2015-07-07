@@ -14,6 +14,7 @@ import android.widget.ListView;
 import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.PackageAdaper;
 import com.funfvier.anjavadoc.dao.ClassDao;
+import com.funfvier.anjavadoc.dao.PackageDao;
 import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EClass;
 import com.funfvier.anjavadoc.entity.EPackage;
@@ -55,6 +56,15 @@ public class PackageActivity extends ActionBarActivity {
 
         int packageId = getIntent().getIntExtra(Const.PACKAGE_ID.name(), -1);
 
+        PackageDao packageDao = new PackageDao(dbhelper);
+        EPackage ePackage = packageDao.get(packageId);
+
+        if(ePackage != null) {
+            setTitle("Package " + ePackage.getName());
+        } else {
+            setTitle("Package");
+        }
+
         ClassDao dao = new ClassDao(dbhelper);
         List<EClass> classes = dao.getByPackageId(packageId);
         dbhelper.close();
@@ -83,6 +93,14 @@ public class PackageActivity extends ActionBarActivity {
             }
         }
         return filtered.toArray(new EClass[]{});
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(dbhelper != null) {
+            dbhelper.close();
+        }
+        super.onDestroy();
     }
 
     @Override

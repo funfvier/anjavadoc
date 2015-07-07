@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.MemberAdapter;
+import com.funfvier.anjavadoc.dao.ClassDao;
 import com.funfvier.anjavadoc.dao.MemberDao;
 import com.funfvier.anjavadoc.db.DBOpenHelper;
 import com.funfvier.anjavadoc.entity.EClass;
@@ -54,6 +55,15 @@ public class ClassActivity extends ActionBarActivity {
 
         int classId = getIntent().getIntExtra(Const.CLASS_ID.name(), -1);
 
+        ClassDao classDao = new ClassDao(dbhelper);
+        EClass eClass = classDao.get(classId);
+
+        if(eClass != null) {
+            setTitle("Class: " + eClass.getName());
+        } else {
+            setTitle("Class");
+        }
+
         MemberDao memberDao = new MemberDao(dbhelper);
 
         final EMember[] classMembers = memberDao.getByClassId(classId).toArray(new EMember[]{});
@@ -81,6 +91,14 @@ public class ClassActivity extends ActionBarActivity {
             }
         }
         return result.toArray(new EMember[] {});
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(dbhelper != null) {
+            dbhelper.close();
+        }
+        super.onDestroy();
     }
 
     @Override

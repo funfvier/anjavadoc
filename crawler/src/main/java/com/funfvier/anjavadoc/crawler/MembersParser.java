@@ -55,37 +55,35 @@ public class MembersParser {
         Element detailsElement = details.first();
         if(detailsElement == null) {
             log.warn("detailsElement is null: " + path);
-            return;
         }
         Elements methodDetailElements = detailsElement.getElementsByAttributeValue("name", "method.detail");
-        if(methodDetailElements == null) {
+        if(detailsElement != null && methodDetailElements != null) {
             log.warn("methodDetailElements is null: "  + path);
-            return;
+            Element methodsLiElement = methodDetailElements.parents().first();
+            if(methodsLiElement == null) {
+                log.warn("methodsLiElement is null: " + path);
+                return;
+            }
+            Elements methodLiElements = methodsLiElement.getElementsByTag("li");
+            for (Element menthodLiElement : methodLiElements) {
+                if (menthodLiElement.className().equalsIgnoreCase("blockList")) {
+                    Element signatureElement = menthodLiElement.getElementsByTag("pre").first();
+                    log.info("Next method " + signatureElement.text());
+                    String methodDescription = signatureElement.siblingElements().html();
+                    log.info("  Description: " + methodDescription);
+
+                    JDMethod jdMethod = new JDMethod();
+                    jdMethod.setName(signatureElement.text());
+                    jdMethod.setHtmlName(signatureElement.html());
+                    jdMethod.setShortDescription(null);
+                    jdMethod.setLongDescription(signatureElement.siblingElements().html());
+                    methods.add(jdMethod);
+                }
+            }
         }
         Element contentContainerElt = doc.getElementsByClass("contentContainer").first();
         if(contentContainerElt != null) {
             processClassDescription(contentContainerElt);
-        }
-        Element methodsLiElement = methodDetailElements.parents().first();
-        if(methodsLiElement == null) {
-            log.warn("methodsLiElement is null: " + path);
-            return;
-        }
-        Elements methodLiElements = methodsLiElement.getElementsByTag("li");
-        for (Element menthodLiElement : methodLiElements) {
-            if (menthodLiElement.className().equalsIgnoreCase("blockList")) {
-                Element signatureElement = menthodLiElement.getElementsByTag("pre").first();
-                log.info("Next method " + signatureElement.text());
-                String methodDescription = signatureElement.siblingElements().html();
-                log.info("  Description: " + methodDescription);
-
-                JDMethod jdMethod = new JDMethod();
-                jdMethod.setName(signatureElement.text());
-                jdMethod.setHtmlName(signatureElement.html());
-                jdMethod.setShortDescription(null);
-                jdMethod.setLongDescription(signatureElement.siblingElements().html());
-                methods.add(jdMethod);
-            }
         }
     }
 

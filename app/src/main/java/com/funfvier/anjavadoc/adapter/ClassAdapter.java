@@ -32,6 +32,8 @@ public class ClassAdapter extends ArrayAdapter<EClass> {
         View rowView = inflater.inflate(R.layout.class_item, parent, false);
         TextView nameView = (TextView) rowView.findViewById(R.id.label);
         nameView.setText(classes[position].getName());
+        TextView descriptionView = (TextView) rowView.findViewById(R.id.classDescription);
+        descriptionView.setText(classes[position].getDescriptionShort());
         return rowView;
     }
 }

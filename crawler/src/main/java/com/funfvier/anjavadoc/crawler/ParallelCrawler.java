@@ -39,7 +39,6 @@ public class ParallelCrawler {
     private AtomicInteger classId;
     private AtomicInteger memberId;
     private final JDThreadPoolExecutor executor;
-    private static final Object dbLock = new Object();
 
     public ParallelCrawler() {
         packageDao = new PackageDao();
@@ -57,11 +56,7 @@ public class ParallelCrawler {
 
     public static void main(String[] args) throws Exception {
         ParallelCrawler parallelCrawler = new ParallelCrawler();
-        StopWatch sw = new StopWatch();
-        sw.start();
         parallelCrawler.process();
-        sw.stop();
-        log.info("Time processing: " + sw.getTime());
     }
 
     public void process() throws Exception {
@@ -75,11 +70,31 @@ public class ParallelCrawler {
     }
 
     private void processPackages() throws Exception {
+        StopWatch sw = new StopWatch();
+        sw.start();
         for (JDPackage jdPackage : packages) {
             Worker worker = new Worker(jdPackage);
             executor.submit(worker);
         }
         executor.shutdown();
+        try {
+            executor.awaitTermination(30, TimeUnit.MINUTES);
+            sw.stop();
+            log.info("Time parsing: " + sw.getTime());
+        } catch (InterruptedException e) {
+            log.error(e);
+        }
+        sw.reset();
+        sw.start();
+        packageDao.saveToDb(packages);
+        log.debug("Packages saved");
+        classDao.saveToDb(classes);
+        log.debug("Classes saved");
+        memberDao.saveToDb(members);
+        log.debug("Members saved");
+        sw.stop();
+        log.info("Time in db: " + sw.getTime());
+        log.info("Work completed");
     }
 
 
@@ -114,9 +129,6 @@ public class ParallelCrawler {
             classParser.parse();
 
             jdPackage.setLongDescription(classParser.getPackageLongDescription());
-            synchronized (dbLock) {
-                packageDao.saveToDb(jdPackage);
-            }
 
             for (JDClass jdClass : classParser.getClasses()) {
                 jdClass.setPackageId(jdPackage.getId());
@@ -150,17 +162,13 @@ public class ParallelCrawler {
             membersParser.parse();
 
             jdClass.setLongDescription(membersParser.getLongClassDescription());
-            synchronized (dbLock) {
-                classDao.saveToDb(jdClass);
-            }
+            classes.add(jdClass);
 
             for (JDMethod jdMethod : membersParser.getMethods()) {
                 jdMethod.setClassId(jdClass.getId());
                 jdMethod.setId(memberId.incrementAndGet());
                 log.debug("Next member: " + jdMethod);
-                synchronized (dbLock) {
-                    memberDao.saveToDb(jdMethod);
-                }
+                members.add(jdMethod);
             }
         }
     }

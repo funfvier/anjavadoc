@@ -1,5 +1,7 @@
 package com.funfvier.anjavadoc.crawler.entity;
 
+import com.funfvier.anjavadoc.crawler.ClassType;
+
 /**
  * Created by lshi on 01.07.2015.
  */
@@ -10,6 +12,7 @@ public class JDClass {
     private String shortDescription;
     private String longDescription;
     private int packageId;
+    private ClassType classType;
 
     public int getId() {
         return id;
@@ -59,6 +62,14 @@ public class JDClass {
         this.href = href;
     }
 
+    public ClassType getClassType() {
+        return classType;
+    }
+
+    public void setClassType(ClassType classType) {
+        this.classType = classType;
+    }
+
     @Override
     public String toString() {
         return "JDClass{" +
@@ -68,6 +79,7 @@ public class JDClass {
                 ", shortDescription='" + shortDescription + '\'' +
                 ", longDescription='" + longDescription + '\'' +
                 ", packageId=" + packageId +
+                ", classType=" + classType +
                 '}';
     }
 }

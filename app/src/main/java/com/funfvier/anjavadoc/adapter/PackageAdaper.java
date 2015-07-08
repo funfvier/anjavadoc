@@ -31,6 +31,8 @@ public class PackageAdaper extends ArrayAdapter<EPackage> {
         View rowView = inflater.inflate(R.layout.package_item, parent, false);
         TextView nameView = (TextView) rowView.findViewById(R.id.label);
         nameView.setText(packages[position].getName());
+        TextView shortDescriptionView = (TextView) rowView.findViewById(R.id.packageDescription);
+        shortDescriptionView.setText(packages[position].getDescription());
         return rowView;
     }
 }

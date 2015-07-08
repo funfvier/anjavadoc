@@ -7,9 +7,18 @@
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Class name"
         android:textSize="20sp"
         android:paddingLeft="5dp"
         android:textColor="#555">
     </TextView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class short description"
+        android:id="@+id/classDescription"
+        android:textSize="15sp"
+        android:paddingLeft="5dp"/>
 
 </LinearLayout>

@@ -1,7 +1,6 @@
 package com.funfvier.anjavadoc.crawler;
 
 import com.funfvier.anjavadoc.crawler.entity.JDClass;
-import com.funfvier.anjavadoc.crawler.entity.JDMethod;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +30,7 @@ public class ClassesParser {
     private List<JDClass> classes;
     private String packageName;
     private String packageLongDescription;
+    private JDClass currentClass;
 
     static {
         try {
@@ -54,9 +54,12 @@ public class ClassesParser {
     }
 
     public static void main(String[] args) throws Exception {
-        ClassesParser classesParser = new ClassesParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/applet/package-summary.html"), "java.applet");
+        ClassesParser classesParser = new ClassesParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/util/concurrent/package-summary.html"), "java.util.stream");
         classesParser.parse();
-        classesParser.saveToDb();
+        for(JDClass jdcLass : classesParser.classes) {
+            log.debug("Class: " + jdcLass);
+        }
+//        classesParser.saveToDb();
     }
 
     public void parse() throws Exception {
@@ -104,6 +107,8 @@ public class ClassesParser {
     }
 
     private void handleSummaryLi(Element e) {
+        ClassType classType = getType(e);
+
         Element headerElt = e.select("table.typeSummary > caption > span").first();
         if(headerElt != null) {
             log.debug("Next summary: " + headerElt.text());
@@ -111,11 +116,41 @@ public class ClassesParser {
         Elements rows = e.getElementsByTag("tr");
         for(Element row : rows) {
             handleRow(row);
+            currentClass.setClassType(classType);
         }
     }
 
+    private ClassType getType(Element liElt) {
+        Element tableElt = liElt.getElementsByTag("table").first();
+        if(tableElt != null) {
+            String summary = tableElt.attributes().get("summary");
+            if(summary != null) {
+                summary = summary.trim().toLowerCase();
+                if(summary.startsWith("Interface Summary".toLowerCase())) {
+                    return ClassType.INTERFACE;
+                }
+                if(summary.startsWith("Class Summary".toLowerCase())) {
+                    return ClassType.CLASS;
+                }
+                if(summary.startsWith("Enum Summary".toLowerCase())) {
+                    return ClassType.ENUM;
+                }
+                if(summary.startsWith("Exception Summary".toLowerCase())) {
+                    return ClassType.EXCEPTION;
+                }
+                if(summary.startsWith("Annotation Types".toLowerCase())) {
+                    return ClassType.ANNOTATION;
+                }
+                if(summary.startsWith("Error Summary".toLowerCase())) {
+                    return ClassType.ERROR;
+                }
+            }
+        }
+        return ClassType.CLASS;
+    }
+
     private void handleRow(Element row) {
-        JDClass jdClass = new JDClass();
+        currentClass = new JDClass();
         Element colFirst = row.getElementsByClass("colFirst").first();
         if(colFirst.tagName().equalsIgnoreCase("th")) return;
         String className = null;
@@ -124,17 +159,17 @@ public class ClassesParser {
             className = colFirst.text();
             Element hrefElt = colFirst.getElementsByTag("a").first();
             if(hrefElt != null) {
-                jdClass.setHref(hrefElt.attributes().get("href"));
+                currentClass.setHref(hrefElt.attributes().get("href"));
             }
         }
         Element colLast = row.getElementsByClass("colLast").first();
         if(colLast != null) {
-            description = colLast.html();
+            description = colLast.text();
         }
         log.debug("Next class: " + className + ", description: " + description);
-        jdClass.setName(packageName + "." + className);
-        jdClass.setShortDescription(description);
-        classes.add(jdClass);
+        currentClass.setName(packageName + "." + className);
+        currentClass.setShortDescription(description);
+        classes.add(currentClass);
     }
 
     private void handleLongDescription(Element containerElt) {

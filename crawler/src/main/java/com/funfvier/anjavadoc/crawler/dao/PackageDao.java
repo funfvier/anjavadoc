@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,6 +56,32 @@ public class PackageDao {
             pst.setString(3, jdPackage.getShortDescription());
             pst.setString(4, jdPackage.getLongDescription());
             pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                log.error(e);
+            }
+        }
+    }
+
+    public void saveToDb(Collection<JDPackage> packages) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+
+            PreparedStatement pst = connection.prepareStatement("insert into jd_packages (_id,name,description,full_description) values (?, ?, ?, ?)");
+            for(JDPackage jdPackage : packages) {
+                pst.setInt(1, jdPackage.getId());
+                pst.setString(2, jdPackage.getName());
+                pst.setString(3, jdPackage.getShortDescription());
+                pst.setString(4, jdPackage.getLongDescription());
+                pst.addBatch();
+            }
+            pst.executeBatch();
+            pst.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {

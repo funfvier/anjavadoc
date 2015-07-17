@@ -49,8 +49,8 @@ public class ClassDao {
             connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_classes " +
-                    "(_id, name, desc_short, desc_long, package_id, is_interface, is_class, is_enum, is_exception, is_annotation) " +
-                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "(_id, name, desc_short, desc_long, package_id, is_interface, is_class, is_enum, is_exception, is_annotation, is_error) " +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             pst.setInt(1, jdClass.getId());
             pst.setString(2, jdClass.getName());
             pst.setString(3, jdClass.getShortDescription());
@@ -80,7 +80,7 @@ public class ClassDao {
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_classes " +
                     "(_id, name, desc_short, desc_long, package_id, is_interface, is_class, is_enum, is_exception, is_annotation, is_error) " +
-                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             for (JDClass jdClass : classes) {
                 pst.setInt(1, jdClass.getId());
                 pst.setString(2, jdClass.getName());

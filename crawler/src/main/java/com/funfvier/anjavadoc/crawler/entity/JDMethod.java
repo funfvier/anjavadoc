@@ -9,6 +9,7 @@ public class JDMethod {
     private String htmlName;
     private String shortDescription;
     private String longDescription;
+    private MemberType type;
     private int classId;
 
     public int getId() {
@@ -59,6 +60,14 @@ public class JDMethod {
         this.classId = classId;
     }
 
+    public MemberType getType() {
+        return type;
+    }
+
+    public void setType(MemberType type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "JDMethod{" +
@@ -67,6 +76,7 @@ public class JDMethod {
                 ", htmlName='" + htmlName + '\'' +
                 ", shortDescription='" + shortDescription + '\'' +
                 ", longDescription='" + longDescription + '\'' +
+                ", type=" + type +
                 ", classId=" + classId +
                 '}';
     }

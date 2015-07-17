@@ -86,4 +86,6 @@
     ]]></string>
     <string name="title_activity_member">MemberActivity</string>
     <string name="mainTitle">Java™ Platform, Standard Edition 8 API Specification</string>
+    <string name="title_activity_class_long_description">ClassLongDescriptionActivity</string>
+    <string name="no_long_description">No description</string>
 </resources>

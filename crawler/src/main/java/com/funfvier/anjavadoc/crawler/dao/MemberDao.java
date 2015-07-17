@@ -51,7 +51,7 @@ public class MemberDao {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
-            PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id) values (?, ?, ?, ?, ?)");
+            PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id, type_id) values (?, ?, ?, ?, ?, ?)");
             if (set.contains(jdMethod.getName())) return;
             set.add(jdMethod.getName());
             pst.setInt(1, jdMethod.getId());
@@ -59,6 +59,7 @@ public class MemberDao {
             pst.setString(3, jdMethod.getShortDescription());
             pst.setString(4, jdMethod.getLongDescription());
             pst.setInt(5, jdMethod.getClassId());
+            pst.setInt(6, jdMethod.getType().getId());
             pst.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -76,7 +77,7 @@ public class MemberDao {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
-            PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id) values (?, ?, ?, ?, ?)");
+            PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id, type_id) values (?, ?, ?, ?, ?, ?)");
             for(JDMethod jdMethod : members) {
                 if (set.contains(jdMethod.getName())) continue;
                 set.add(jdMethod.getName());
@@ -85,6 +86,7 @@ public class MemberDao {
                 pst.setString(3, jdMethod.getShortDescription());
                 pst.setString(4, jdMethod.getLongDescription());
                 pst.setInt(5, jdMethod.getClassId());
+                pst.setInt(6, jdMethod.getType().getId());
                 pst.addBatch();
             }
             pst.executeBatch();

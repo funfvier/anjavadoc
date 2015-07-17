@@ -2,6 +2,7 @@ package com.funfvier.anjavadoc.crawler;
 
 import com.funfvier.anjavadoc.crawler.entity.JDMethod;
 import com.funfvier.anjavadoc.crawler.entity.JDPackage;
+import com.funfvier.anjavadoc.crawler.entity.MemberType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +13,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.MemoryType;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -31,6 +33,7 @@ public class MembersParser {
     private File path;
     private List<JDMethod> methods;
     private String longClassDescription;
+    private JDMethod currentMember;
 
     static {
         try {
@@ -51,36 +54,14 @@ public class MembersParser {
     public void parse() throws IOException {
         methods = new ArrayList<>();
         Document doc = Jsoup.parse(path, "UTF-8");
-        Elements details = doc.getElementsByClass("details");
-        Element detailsElement = details.first();
-        if(detailsElement == null) {
-            log.warn("detailsElement is null: " + path);
-        }
-        Elements methodDetailElements = detailsElement.getElementsByAttributeValue("name", "method.detail");
-        if(detailsElement != null && methodDetailElements != null) {
-            log.warn("methodDetailElements is null: "  + path);
-            Element methodsLiElement = methodDetailElements.parents().first();
-            if(methodsLiElement == null) {
-                log.warn("methodsLiElement is null: " + path);
-                return;
-            }
-            Elements methodLiElements = methodsLiElement.getElementsByTag("li");
-            for (Element menthodLiElement : methodLiElements) {
-                if (menthodLiElement.className().equalsIgnoreCase("blockList")) {
-                    Element signatureElement = menthodLiElement.getElementsByTag("pre").first();
-                    log.info("Next method " + signatureElement.text());
-                    String methodDescription = signatureElement.siblingElements().html();
-                    log.info("  Description: " + methodDescription);
 
-                    JDMethod jdMethod = new JDMethod();
-                    jdMethod.setName(signatureElement.text());
-                    jdMethod.setHtmlName(signatureElement.html());
-                    jdMethod.setShortDescription(null);
-                    jdMethod.setLongDescription(signatureElement.siblingElements().html());
-                    methods.add(jdMethod);
-                }
-            }
+        Elements detailLiElts = doc.select("div.details > ul.blockList > li.blockList > ul.blockList");
+        for(Element detailElt : detailLiElts) {
+            MemberType type = getType(detailElt);
+            log.debug("Type: " + type);
+            parseDetail(type, detailElt);
         }
+
         Element contentContainerElt = doc.getElementsByClass("contentContainer").first();
         if(contentContainerElt != null) {
             processClassDescription(contentContainerElt);
@@ -89,6 +70,62 @@ public class MembersParser {
 
     public List<JDMethod> getMethods() {
         return Collections.unmodifiableList(methods);
+    }
+
+    private void parseDetail(MemberType type, Element detailElt) {
+//        if(type == MemberType.METHOD ||
+//                type == MemberType.FIELD) {
+//            parseMethods(type, detailElt);
+//        }
+        parseMethods(type, detailElt);
+    }
+
+    private void parseMethods(MemberType type, Element detailElt) {
+        Elements methodsLiEtls = detailElt.select("ul.blockList,ul.blockListLast");
+        for(Element methodElt : methodsLiEtls) {
+            currentMember = new JDMethod();
+            Element signatureElement = methodElt.getElementsByTag("pre").first();
+            if(signatureElement != null) {
+                currentMember.setName(signatureElement.text());
+                currentMember.setHtmlName(signatureElement.html());
+            }
+            Element shortDescriptionElt = methodElt.select("div.block").first();
+            if(shortDescriptionElt != null) {
+                currentMember.setShortDescription(shortDescriptionElt.text());
+            }
+            Element descriptionElt = methodElt.getElementsByTag("dl").first();
+            if(descriptionElt != null) {
+                currentMember.setLongDescription(shortDescriptionElt.html() + descriptionElt.html());
+            } else {
+                currentMember.setLongDescription(shortDescriptionElt.html());
+            }
+            currentMember.setType(type);
+            log.debug("Current member: " + currentMember);
+            methods.add(currentMember);
+        }
+    }
+
+    private MemberType getType(Element ulDetailsElt) {
+        Element typeElt = ulDetailsElt.select("li.blockList > h3").first();
+        if(typeElt != null) {
+            String type = typeElt.text().trim().toLowerCase();
+            if(type.startsWith("Field Detail".toLowerCase())) {
+                return MemberType.FIELD;
+            }
+            if(type.startsWith("Method Detail".toLowerCase())) {
+                return MemberType.METHOD;
+            }
+            if(type.startsWith("Constructor Detail".toLowerCase())) {
+                return MemberType.CONSTRUCTOR;
+            }
+            if(type.startsWith("Enum Constant Detail".toLowerCase())) {
+                return MemberType.ENUM_CONSTANT;
+            }
+            if(type.startsWith("Element Detail".toLowerCase())) {
+                return MemberType.ELEMENT;
+            }
+        }
+        return MemberType.METHOD;
     }
 
     private void processClassDescription(Element contentContainerElt) {
@@ -135,7 +172,7 @@ public class MembersParser {
     }
 
     public static void main(String[] args) throws Exception {
-        MembersParser classParser = new MembersParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/awt/dnd/DnDConstants.html"));
+        MembersParser classParser = new MembersParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/lang/annotation/RetentionPolicy.html"));
         classParser.parse();
 //        classParser.saveToDb();
     }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.funfvier.anjavadoc.adapter.ClassAdapter;
 import com.funfvier.anjavadoc.adapter.MemberAdapter;
@@ -56,7 +57,7 @@ public class ClassActivity extends ActionBarActivity {
         int classId = getIntent().getIntExtra(Const.CLASS_ID.name(), -1);
 
         ClassDao classDao = new ClassDao(dbhelper);
-        EClass eClass = classDao.get(classId);
+        final EClass eClass = classDao.get(classId);
 
         if(eClass != null) {
             setTitle("Class: " + eClass.getName());
@@ -72,6 +73,18 @@ public class ClassActivity extends ActionBarActivity {
         ListView lvClasses = (ListView) findViewById(R.id.lvMembers);
         ArrayAdapter<EMember> adapter = new MemberAdapter(this, R.layout.member_item, classMembers);
         lvClasses.setAdapter(adapter);
+
+        TextView tvClassLongDescription = (TextView) findViewById(R.id.tvClassLongDescription);
+        tvClassLongDescription.setText(eClass.getDescriptionShort());
+
+        tvClassLongDescription.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent longDescIntent = new Intent(ClassActivity.this, ClassLongDescriptionActivity.class);
+                longDescIntent.putExtra(Const.CLASS_ID.name(), eClass.getId());
+                startActivity(longDescIntent);
+            }
+        });
 
         lvClasses.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

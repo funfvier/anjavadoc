@@ -15,21 +15,13 @@ import java.util.Collection;
 /**
  * Created by lshi on 03.07.2015.
  */
-public class ClassDao {
+public class ClassDao extends BaseDao {
     private static final Logger log = LogManager.getLogger(ClassDao.class);
-
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void deleteAll() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
             Statement delSt = connection.createStatement();
             delSt.executeUpdate("delete from jd_classes");
         } catch (SQLException e) {
@@ -46,7 +38,7 @@ public class ClassDao {
     public void saveToDb(JDClass jdClass) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection =getConnection();
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_classes " +
                     "(_id, name, desc_short, desc_long, package_id, is_interface, is_class, is_enum, is_exception, is_annotation, is_error) " +
@@ -76,7 +68,7 @@ public class ClassDao {
     public void saveToDb(Collection<JDClass> classes) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_classes " +
                     "(_id, name, desc_short, desc_long, package_id, is_interface, is_class, is_enum, is_exception, is_annotation, is_error) " +

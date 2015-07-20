@@ -17,21 +17,13 @@ import java.util.List;
 /**
  * Created by lshi on 03.07.2015.
  */
-public class PackageDao {
+public class PackageDao extends BaseDao {
     private static final Logger log = LogManager.getLogger(PackageDao.class);
-
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void deleteAll() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
             Statement delSt = connection.createStatement();
             delSt.executeUpdate("delete from jd_packages");
         } catch (SQLException e) {
@@ -48,7 +40,7 @@ public class PackageDao {
     public void saveToDb(JDPackage jdPackage) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_packages (_id,name,description,full_description) values (?, ?, ?, ?)");
             pst.setInt(1, jdPackage.getId());
@@ -70,7 +62,7 @@ public class PackageDao {
     public void saveToDb(Collection<JDPackage> packages) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
 
             PreparedStatement pst = connection.prepareStatement("insert into jd_packages (_id,name,description,full_description) values (?, ?, ?, ?)");
             for(JDPackage jdPackage : packages) {
@@ -96,7 +88,7 @@ public class PackageDao {
     public void updateLongDescription(int packageId, String text) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
 
             PreparedStatement pst = connection.prepareStatement("update jd_packages set values full_description = ? where id = ?");
             pst.setInt(2, packageId);

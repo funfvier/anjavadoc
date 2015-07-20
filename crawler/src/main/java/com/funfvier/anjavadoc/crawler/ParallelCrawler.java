@@ -19,9 +19,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by lshi on 06.07.2015.
@@ -39,6 +41,7 @@ public class ParallelCrawler {
     private AtomicInteger classId;
     private AtomicInteger memberId;
     private final JDThreadPoolExecutor executor;
+    private final static AtomicLong threadNumber = new AtomicLong(1);
 
     public ParallelCrawler() {
         packageDao = new PackageDao();
@@ -51,7 +54,7 @@ public class ParallelCrawler {
         members = new LinkedBlockingQueue<>();
 
         BlockingQueue q = new LinkedBlockingQueue();
-        executor = new JDThreadPoolExecutor(4, 4, 10, TimeUnit.MINUTES, q, new JDRejectedExecutionHandler());
+        executor = new JDThreadPoolExecutor(4, 4, 10, TimeUnit.MINUTES, q, new CrawlerThreadFactory(), new JDRejectedExecutionHandler());
     }
 
     public static void main(String[] args) throws Exception {
@@ -177,6 +180,25 @@ public class ParallelCrawler {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
             log.debug("Rejected: " + r);
+        }
+    }
+
+    static class CrawlerUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            log.error("CrawlerUncaughtExceptionHandler exception: ", e);
+        }
+    }
+
+    static class CrawlerThreadFactory implements ThreadFactory {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setName("Thread-" + threadNumber.getAndIncrement());
+            t.setUncaughtExceptionHandler(new CrawlerUncaughtExceptionHandler());
+            return t;
         }
     }
 }

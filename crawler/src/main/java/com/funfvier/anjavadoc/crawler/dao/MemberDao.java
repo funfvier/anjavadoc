@@ -18,21 +18,13 @@ import java.util.Set;
 /**
  * Created by lshi on 03.07.2015.
  */
-public class MemberDao {
+public class MemberDao extends BaseDao {
     private static final Logger log = LogManager.getLogger(MemberDao.class);
-
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void deleteAll() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
             Statement delSt = connection.createStatement();
             delSt.executeUpdate("delete from jd_members");
         } catch (SQLException e) {
@@ -50,7 +42,7 @@ public class MemberDao {
         Set<String> set = new HashSet();
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
             PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id, type_id) values (?, ?, ?, ?, ?, ?)");
             if (set.contains(jdMethod.getName())) return;
             set.add(jdMethod.getName());
@@ -73,14 +65,11 @@ public class MemberDao {
     }
 
     public void saveToDb(Collection<JDMethod> members) {
-        Set<String> set = new HashSet();
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:\\projects\\funfvier\\anjavadoc\\anjavadoc\\app\\src\\main\\assets\\docdb");
+            connection = getConnection();
             PreparedStatement pst = connection.prepareStatement("insert into jd_members (_id, name, desc_short, desc_long, class_id, type_id) values (?, ?, ?, ?, ?, ?)");
             for(JDMethod jdMethod : members) {
-                if (set.contains(jdMethod.getName())) continue;
-                set.add(jdMethod.getName());
                 pst.setInt(1, jdMethod.getId());
                 pst.setString(2, jdMethod.getName());
                 pst.setString(3, jdMethod.getShortDescription());

@@ -69,7 +69,9 @@ public class MemberActivity extends ActionBarActivity {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     Log.d(TAG, "URL clicked: " + url);
-                    return super.shouldOverrideUrlLoading(view, url);
+                    LinkHandler linkHandler = new LinkHandler(MemberActivity.this);
+                    linkHandler.execute(url.trim());
+                    return true;
                 }
             });
         }

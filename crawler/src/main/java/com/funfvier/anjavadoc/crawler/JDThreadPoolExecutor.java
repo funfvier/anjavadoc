@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,10 @@ public class JDThreadPoolExecutor extends ThreadPoolExecutor {
 
     public JDThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
+    }
+
+    public JDThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
     }
 
     @Override

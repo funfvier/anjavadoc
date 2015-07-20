@@ -81,6 +81,7 @@ public class MembersParser {
     }
 
     private void parseMethods(MemberType type, Element detailElt) {
+        Set<String> uniqs = new HashSet<>();
         Elements methodsLiEtls = detailElt.select("ul.blockList,ul.blockListLast");
         for(Element methodElt : methodsLiEtls) {
             currentMember = new JDMethod();
@@ -95,13 +96,16 @@ public class MembersParser {
             }
             Element descriptionElt = methodElt.getElementsByTag("dl").first();
             if(descriptionElt != null) {
-                currentMember.setLongDescription(shortDescriptionElt.html() + descriptionElt.html());
-            } else {
+                currentMember.setLongDescription((shortDescriptionElt != null ? shortDescriptionElt.html() : "") + descriptionElt.html());
+            } else if(shortDescriptionElt != null) {
                 currentMember.setLongDescription(shortDescriptionElt.html());
             }
             currentMember.setType(type);
             log.debug("Current member: " + currentMember);
-            methods.add(currentMember);
+            if(!uniqs.contains(currentMember.getName())) {
+                methods.add(currentMember);
+            }
+            uniqs.add(currentMember.getName());
         }
     }
 
@@ -172,7 +176,7 @@ public class MembersParser {
     }
 
     public static void main(String[] args) throws Exception {
-        MembersParser classParser = new MembersParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/lang/annotation/RetentionPolicy.html"));
+        MembersParser classParser = new MembersParser(new File("C:/downloads/jdk-8u45-docs-all/docs/api/java/io/Console.html"));
         classParser.parse();
 //        classParser.saveToDb();
     }
